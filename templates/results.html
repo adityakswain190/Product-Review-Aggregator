@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Analysis Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 2rem;
+        }
+        .header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .result-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            max-width: 1000px;
+            margin: 0 auto 2rem auto;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1.5rem;
+        }
+        .product-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-right: 1.5rem;
+        }
+        .product-details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .recommendation {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .recommendation-buy {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+        .recommendation-consider {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+        .recommendation-avoid {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+        .recommendation h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .recommendation-buy h1 {
+            color: #28a745;
+        }
+        .recommendation-consider h1 {
+            color: #ffc107;
+        }
+        .recommendation-avoid h1 {
+            color: #dc3545;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+        .topic-tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .feature-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .feature-bar {
+            flex-grow: 1;
+            height: 8px;
+            margin: 0 1rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .feature-bar-fill {
+            height: 100%;
+            background-color: #ff9900;
+        }
+        .review-card {
+            margin-bottom: 1rem;
+            border-left: 5px solid #6c757d;
+            padding: 0.5rem 1rem;
+            background-color: #f8f9fa;
+        }
+        .review-positive {
+            border-left-color: #28a745;
+        }
+        .review-negative {
+            border-left-color: #dc3545;
+        }
+        .btn-back {
+            margin-top: 1rem;
+        }
+        .section-title {
+            border-bottom: 2px solid #ff9900;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .rating-stars {
+            color: #ff9900;
+            margin-bottom: 0.5rem;
+        }
+        .metrics-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .metrics-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #ff9900;
+        }
+        .metrics-content h5 {
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+        .metrics-content p {
+            margin-bottom: 0;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Review Analysis Results</h1>
+            <p class="lead">Based on {{ review_count }} reviews</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="result-container">
+            <!-- Product Info Section -->
+            {% if analysis.product_info %}
+            <div class="product-info">
+                <img src="{{ analysis.product_info.image_url or '/static/placeholder.png' }}" alt="{{ analysis.product_info.title }}" class="product-image">
+                <div class="product-details">
+                    <h2>{{ analysis.product_info.title }}</h2>
+                    {% if analysis.product_info.rating %}
+                    <div class="rating-stars">
+                        {% set rating = analysis.product_info.rating|float %}
+                        {% for i in range(5) %}
+                            {% if i < rating|int %}
+                                <i class="fas fa-star"></i>
+                            {% elif i == rating|int and rating % 1 >= 0.5 %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span>({{ rating }})</span>
+                    </div>
+                    {% endif %}
+                    {% if analysis.product_info.price %}
+                    <div class="price">
+                        <strong>Price:</strong> {{ analysis.product_info.price }}
+                    </div>
+                    {% endif %}
+                    <div class="mt-2">
+                        <a href="{{ product_url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-external-link-alt me-1"></i> View on Amazon
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recommendation Section -->
+            <div class="recommendation {% if analysis.recommendation == 'Buy' %}recommendation-buy{% elif analysis.recommendation == 'Consider' %}recommendation-consider{% else %}recommendation-avoid{% endif %}">
+                <h2>Our Recommendation:</h2>
+                {% if analysis.recommendation == "Buy" %}
+                    <h1><i class="fas fa-thumbs-up me-2"></i> BUY IT</h1>
+                    <p>This product has highly positive reviews and is likely a good purchase</p>
+                {% elif analysis.recommendation == "Consider" %}
+                    <h1><i class="fas fa-balance-scale me-2"></i> CONSIDER IT</h1>
+                    <p>This product has mixed reviews - check the details before purchasing</p>
+                {% else %}
+                    <h1><i class="fas fa-thumbs-down me-2"></i> AVOID IT</h1>
+                    <p>This product has mostly negative reviews and may not be a good purchase</p>
+                {% endif %}
+            </div>
+            
+            <!-- Key Metrics Row -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="metrics-card">
+                        <div class="metrics-icon">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <div class="metrics-content">
+                            <h5>Positive Reviews</h5>
+                            <p>{{ analysis.sentiment.positive_pct|round(1) }}%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="metrics-card">
+                        <div class="metrics-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <div class="metrics-content">
+                            <h5>Total Reviews</h5>
+                            <p>{{ review_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="metrics-card">
+                        <div class="metrics-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metrics-content">
+                            <h5>Sentiment Score</h5>
+                            <p>{{ analysis.sentiment.average|round(2) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sentiment and Topics Section -->
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="section-title">Sentiment Analysis</h3>
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h3 class="section-title">Key Topics</h3>
+                    <div class="mb-4">
+                        {% for topic in analysis.topics %}
+                            <div class="mb-2">
+                                <strong>Topic {{ topic.id + 1 }}:</strong>
+                                {% for word in topic.words %}
+                                    <span class="topic-tag">{{ word }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Features Section -->
+            {% if analysis.product_features %}
+            <hr>
+            <h3 class="section-title">Important Product Features</h3>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-4">
+                        {% set max_score = analysis.product_features[0][1] %}
+                        {% for feature, score in analysis.product_features %}
+                            <div class="feature-score">
+                                <span class="feature-name">{{ feature }}</span>
+                                <div class="feature-bar">
+                                    <div class="feature-bar-fill" style="width: {{ (score / max_score * 100)|round }}%"></div>
+                                </div>
+                                <span class="feature-score-value">{{ (score|float)|round(2) }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Reviews Section -->
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="section-title">Sample Positive Reviews</h3>
+                    {% if analysis.sample_positives %}
+                        {% for review in analysis.sample_positives %}
+                            <div class="review-card review-positive">
+                                <i class="fas fa-quote-left me-2 text-muted"></i>
+                                {{ review }}
+                                <i class="fas fa-quote-right ms-2 text-muted"></i>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No strongly positive reviews found.</p>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <h3 class="section-title">Sample Negative Reviews</h3>
+                    {% if analysis.sample_negatives %}
+                        {% for review in analysis.sample_negatives %}
+                            <div class="review-card review-negative">
+                                <i class="fas fa-quote-left me-2 text-muted"></i>
+                                {{ review }}
+                                <i class="fas fa-quote-right ms-2 text-muted"></i>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No strongly negative reviews found.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-secondary btn-back">
+                    <i class="fas fa-arrow-left me-2"></i> Analyze Another Product
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Parse sentiment data from Flask
+        const sentimentData = JSON.parse('{{ sentiment_data|safe }}');
+        
+        // Create sentiment chart
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: sentimentData.categories,
+                datasets: [{
+                    data: sentimentData.values,
+                    backgroundColor: [
+                        '#28a745',  // Positive - green
+                        '#6c757d',  // Neutral - gray
+                        '#dc3545'   // Negative - red
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw.toFixed(1) + '%';
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    </script>
+</body>
+</html>

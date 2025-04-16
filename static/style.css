@@ -1,0 +1,103 @@
+/* static/styles.css */
+.hero-section {
+    background: linear-gradient(135deg, #ff9900 0%, #ff5500 100%);
+    color: white;
+    padding: 4rem 0;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.loading-indicator {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+.feature-card {
+    border: none;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-badge {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    z-index: 10;
+}
+
+.badge-buy {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-consider {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-avoid {
+    background-color: #dc3545;
+    color: white;
+}
+
+.sentiment-meter {
+    position: relative;
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.sentiment-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+}
+
+.sentiment-marker {
+    position: absolute;
+    top: -10px;
+    width: 8px;
+    height: 50px;
+    background-color: #212529;
+    transform: translateX(-4px);
+}
+
+.footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
