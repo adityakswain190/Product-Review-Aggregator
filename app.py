@@ -200,14 +200,14 @@ def extract_asin_from_url(url):
     
     return None
 
-def fetch_amazon_reviews(product_id, domain="in", location="110001", pages=4):
+def fetch_amazon_reviews(product_id, domain="in", location="110001", pages=3):
     """Fetch Amazon reviews using Oxylabs API"""
     print(f"Starting to fetch reviews for product ID: {product_id} from Amazon {domain}")
     
     # For testing - try a direct Amazon URL for debugging
     try:
         # First try a test HTTP request to check connectivity
-        test_response = requests.get("https://httpbin.org/ip", timeout=61 
+        test_response = requests.get("https://httpbin.org/ip", timeout=5)
         print(f"Network connectivity test: {test_response.status_code}")
     except Exception as e:
         print(f"Network connectivity test failed: {e}")
