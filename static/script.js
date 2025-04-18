@@ -1,4 +1,4 @@
-// static/scripts.js
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Form submission with loading indicator
