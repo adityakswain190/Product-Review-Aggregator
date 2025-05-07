@@ -141,5 +141,5 @@ Contributions are welcome! Feel free to open issues or submit pull requests to h
 ---
 
 <p align="center">
-  Made with ❤ by <a href="https://github.com/yourusername">Your Name</a>
+  Made with ❤ by <a href="https://github.com/yourusername">Aditya K Swain</a>
 </p>
